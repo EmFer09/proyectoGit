@@ -8,7 +8,7 @@ jobs:
            - env:
                 DEV: ${{ secrets.DEV_TOKEN }}
              run: |
-                    if ($env:SECRET_DEV -eq $env:LOCAL_DEV_TOKEN) {
+                    if ($env:DEV -eq $env:LOCAL_DEV_TOKEN) {
                         Write-Host "Los tokens coinciden"
                     } else {
                         Write-Host "Los tokens NO coinciden"
