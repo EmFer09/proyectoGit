@@ -1,0 +1,47 @@
+---
+name: cd
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  actualizar-readme:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Añadir linea al Readme
+        run: |
+          echo "Añadida feature: ${{ github.head_ref || github.ref_name }}" >> README.md
+
+      - name: Commit y Push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          git commit -m "CI: actualizo README" || echo "Nada que commitear"
+          git push
+        
+  validar-secret:
+    needs: actualizar-readme
+    runs-on: self-hosted
+    steps:
+      - env:
+          DEV: ${{ secrets.DEV_TOKEN }} 
+        run: |
+          if ($env:DEV -eq $env:LOCAL_DEV_TOKEN) {
+            Write-Host "Los tokens coinciden"
+          } else {
+            Write-Host "Los tokens NO coinciden"
+            exit 1
+          }
